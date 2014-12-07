@@ -1,5 +1,5 @@
-Superfly
-========
+####Superfly
+##################
 import math, random, matplotlib, numpy, pylab
 
 class Grid(object):
@@ -64,9 +64,13 @@ class Grid(object):
                     immune = 1-human.immune
                 else:
                     immune = human.immune
-                print immune-human.immune
                 self.immuneHuman += immune-human.immune
-                newHuman = Human(self.randomPosition(), self.health, human.net,
+                # Probability 0.5 to get or lose net
+                if random.random() < 0.5:
+                    net = 1-human.net
+                else:
+                    net = human.net
+                newHuman = Human(self.randomPosition(), self.health, net,
                                  self.loss, immune)
                 self.humanList.append(newHuman)
                 self.freeList.remove(newHuman.position)
@@ -96,19 +100,20 @@ class Grid(object):
             else:
                 mosquito.fly()
                 if mosquito.hungry() and (mosquito.position in self.humanPosList):
-                    mosquito.bite()
-                    humanIndex = self.humanPosList.index(mosquito.position)
-                    human = self.humanList[humanIndex]
-                    if human.immune != 1:
-                        if mosquito.infected == 1:
-                            if human.sick == 0:
-                                human.getSick()
-                                self.infectedHuman += 1
-                                self.uninfectedHuman -= 1
-                        elif human.sick == 1:
-                                mosquito.getInfected()
-                                self.infectedMos += 1
-                                self.uninfectedMos -= 1
+                        humanIndex = self.humanPosList.index(mosquito.position)
+                        human = self.humanList[humanIndex]
+                        if human.net*0.5 < random.random():
+                            mosquito.bite()
+                            if human.immune != 1:
+                                if mosquito.infected == 1:
+                                    if human.sick == 0:
+                                        human.getSick()
+                                        self.infectedHuman += 1
+                                        self.uninfectedHuman -= 1
+                                elif human.sick == 1:
+                                        mosquito.getInfected()
+                                        self.infectedMos += 1
+                                        self.uninfectedMos -= 1
 ##        print "Mos", infectedMos, uninfectedMos, len(self.mosquitoList)
 
         return self.infectedMos, self.uninfectedMos, self.infectedHuman, \
