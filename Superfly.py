@@ -1,5 +1,3 @@
-####Superfly
-##################
 import math, random, matplotlib, numpy, pylab
 
 class Grid(object):
@@ -59,8 +57,8 @@ class Grid(object):
                 index = self.humanList.index(human)
                 self.freeList.append(human.position)
                 self.humanList.remove(human)
-                # Probability 0.05 to mutate
-                if random.random() < 0.05:
+                # Probability 0.0005 to mutate
+                if random.random() < 0.0005:
                     immune = 1-human.immune
                 else:
                     immune = human.immune
@@ -269,5 +267,5 @@ def runSim(duration, width, height, humnum, health, mosnum, ninfected, loss):
                      fancybox=True, shadow=True, ncol=3)
     pylab.show()
 
-runSim(duration = 1000, width = 50, height = 50, humnum = 500, health = 1000,
-       mosnum = 200, ninfected = 50, loss = 1)
+runSim(duration = 10000, width = 50, height = 50, humnum = 500, health = 1000,
+       mosnum = 400, ninfected = 50, loss = 1)
