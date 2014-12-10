@@ -1,18 +1,17 @@
 import math, random, matplotlib, numpy, pylab
 
 class Grid(object):
-    def __init__(self, width, height, humnum, health, mosnum, ninfected, loss):
+    def __init__(self, width, height, humnum, mosnum, ninfected, netchance):
         self.width = width
         self.height = height
         size = width*height
         self.tileNumberList = range(size)
         humanList = []
         mosquitoList = []
-        self.health = health
+        self.netchance = netchance
         randList = random.sample(self.tileNumberList, humnum)
-        self.loss = loss
         for i in range(humnum):
-            humanList.append(Human(randList[i], health, 0, self.loss, 0))
+            humanList.append(Human(randList[i], 1))
         randList2 = random.sample(self.tileNumberList, mosnum+ninfected)
 
         for j in range(mosnum):
@@ -51,7 +50,7 @@ class Grid(object):
         for human in self.humanList:
             if human.immune == 1:
                 immune+=1
-            elif human.sick == 1:
+            if human.sick == 1:
                 infectedHuman +=1
             else:
                 uninfectedHuman += 1
@@ -60,8 +59,7 @@ class Grid(object):
                 index = self.humanList.index(human)
                 self.freeList.append(human.position)
                 self.humanList.remove(human)
-                newHuman = Human(self.randomPosition(), self.health, human.net,
-                                 human.loss, 0)
+                newHuman = Human(self.randomPosition(), human.net)
                 self.humanList.append(newHuman)
                 self.freeList.remove(newHuman.position)
                 self.deaths += 1
@@ -74,10 +72,6 @@ class Grid(object):
         infectedMos = 0
         uninfectedMos = 0
         for mosquito in self.mosquitoList:
-##            if mosquito.infected == 1:
-##                infectedMos +=1
-##            else:
-##                uninfectedMos +=1
             mosquito.update()
             if mosquito.die():
                 self.mosquitoList.remove(mosquito)
@@ -92,7 +86,7 @@ class Grid(object):
                 if mosquito.hungry() and (mosquito.position in self.humanPosList):
                         humanIndex = self.humanPosList.index(mosquito.position)
                         human = self.humanList[humanIndex]
-                        if human.net*0.5 < random.random():
+                        if human.net*self.netchance < random.random():
                             mosquito.bite()
                             if human.immune != 1:
                                 if mosquito.infected == 1:
@@ -113,14 +107,13 @@ class Grid(object):
 
 
 class Human(object):    
-    def __init__(self, position, health, net, loss, immune):
+    def __init__(self, position, net):
         self.position = position
-        self.health = health
         self.net = net
         #Sickness: 0=healthy, 1=sick
         self.sick = 0
-        self.immune = immune
-        self.loss = loss
+        self.daysSick = 0
+        self.immune = 0
 
     def updateHealth(self, delta):
         self.health = self.health - delta
@@ -128,22 +121,21 @@ class Human(object):
     def update(self):
         #recover and get immune
         if self.sick == 1:
-            if random.random() < 0.005:
+            self.daysSick +=1
+            if random.random()*math.exp(-self.daysSick/100000) < 0.0005:
                 self.sick = 0
                 self.immune = 1
+                self.daysSick = 0   
         #lose immunity
         else:
             if random.random() < 0.0005:
                 self.immune = 0
 
     def die(self):
-        if self.sick == 1 and random.random() < 0.001:
+        if self.sick == 1 and random.random() < 0.0001:
           return True
         elif random.random() <0.00001:
           return True
-
-    def buyNet(self):
-        self.net = 1
 
 
 class Mosquito(object):
@@ -209,8 +201,8 @@ class Mosquito(object):
             return True
 
     
-def runSim(duration, width, height, humnum, health, mosnum, ninfected, loss):
-    grid = Grid(width, height, humnum, health, mosnum, ninfected, loss)
+def runSim(duration, width, height, humnum, mosnum, ninfected, netchance):
+    grid = Grid(width, height, humnum, mosnum, ninfected, netchance)
 ##    print grid.humanList[1].position
 ##    print grid.getTile(grid.humanList[1].position)
 ##    for i in range(grid.width*grid.height):
@@ -235,6 +227,8 @@ def runSim(duration, width, height, humnum, health, mosnum, ninfected, loss):
         immuneHumanList.append(immuneHuman)
         deathList.append(deaths)
         timeList.append(time)
+        if infectedMos == 0 and infectedHuman == 0:
+            break
     print True
         
         
@@ -253,7 +247,7 @@ def runSim(duration, width, height, humnum, health, mosnum, ninfected, loss):
     pylab.plot(timeList, immuneHumanList, label = 'Number of immune Humans')
     title = 'Start: Human=' + str(humnum) + ' Mosquitos= ' + str(mosnum) + \
             'Infected Mosquitos=' + str(ninfected) + 'Size= ' + str(width) + \
-            '*' + str(height) +' Health= ' + str(health) 
+            '*' + str(height) + "Chance=" + str(netchance)
     pylab.title(title) 
     pylab.ylabel('Numbers') 
     pylab.xlabel('Time steps')
@@ -261,5 +255,5 @@ def runSim(duration, width, height, humnum, health, mosnum, ninfected, loss):
                      fancybox=True, shadow=True, ncol=3)
     pylab.show()
 
-runSim(duration = 10000, width = 50, height = 50, humnum = 500, health = 1000,
-       mosnum = 400, ninfected = 50, loss = 1)
+runSim(duration = 2000, width = 100, height = 100,
+       humnum = 2000,mosnum = 800, ninfected = 500, netchance = 0.55)
