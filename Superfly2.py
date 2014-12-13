@@ -128,7 +128,7 @@ class Human(object):
                 self.daysSick = 0   
         #lose immunity
         else:
-            if random.random() < 0.0005:
+            if random.random() < 0.005:
                 self.immune = 0
 
     def die(self):
@@ -215,11 +215,13 @@ def runSim(duration, width, height, humnum, mosnum, ninfected, netchance):
     immuneHumanList = []
     deathList = []
     timeList = []
-    
+    print "infectedMos, uninfectedMos, infectedHuman, uninfectedHuman, immuneHuman, deaths"
     for time in range(duration):
         infectedMos, uninfectedMos, infectedHuman, \
                 uninfectedHuman, immuneHuman, deaths = grid.update()
-        
+        if time % 20 == 0:
+            print time, infectedMos, uninfectedMos, infectedHuman, \
+                uninfectedHuman, immuneHuman, deaths
         infectedMosList.append(infectedMos)
         uninfectedMosList.append(uninfectedMos)
         infectedHumanList.append(infectedHuman)
@@ -255,5 +257,5 @@ def runSim(duration, width, height, humnum, mosnum, ninfected, netchance):
                      fancybox=True, shadow=True, ncol=3)
     pylab.show()
 
-runSim(duration = 2000, width = 100, height = 100,
-       humnum = 2000,mosnum = 800, ninfected = 500, netchance = 0.55)
+runSim(duration = 501, width = 200, height = 200,
+       humnum = 20000,mosnum = 10000, ninfected = 500, netchance = 0.5)
