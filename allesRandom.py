@@ -65,8 +65,8 @@ class Grid(object):
                 index = self.humanList.index(human)
                 self.freeList.append(human.position)
                 self.humanList.remove(human)
-                newHuman = Human(self.randomPosition(), human.net, self.chancetodie,
-                                 self.chancetodiesick, self.chancetogetimmune, self.chancetoloseimmunity)
+                newHuman = Human(self.randomPosition(), human.net, human.chancetodie,
+                                 human.chancetodiesick, human.chancetogetimmune, human.chancetoloseimmunity)
                 self.humanList.append(newHuman)
                 self.freeList.remove(newHuman.position)
                 self.deaths += 1
@@ -268,5 +268,5 @@ def runSim(duration, width, height, humnum, mosnum, ninfected, netchance, chance
 
 runSim(duration = 501, width = 200, height = 200,
        humnum = 1000,mosnum = 10000, ninfected = 500,
-       netchance = 0.5, chancetodie = 0.00001, chancetodiesick = 0.0001,
+       netchance = 0.5, chancetodie = 0.00001, chancetodiesick = 0.001,
        chancetogetimmune = 0.0005, chancetoloseimmunity = 0.05)
